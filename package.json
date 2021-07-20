@@ -1,0 +1,33 @@
+{
+  "name": "tempo",
+  "version": "1.0.0",
+  "description": "API Tempo",
+  "main": "index.js",
+  "scripts": {
+    "start": "node workspace/bin/www/server.js",
+    "dev": "nodemon workspace/bin/www/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KolotushinTechnologies/Tempo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KolotushinTechnologies/Tempo/issues"
+  },
+  "homepage": "https://github.com/KolotushinTechnologies/Tempo#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.13.3",
+    "passport": "^0.4.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
