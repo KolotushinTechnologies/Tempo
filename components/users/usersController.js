@@ -14,6 +14,7 @@ const UserDto = require("../../dtos/UserDto");
 
 // Connecting validation for forms
 const validateUsersRegistrationInput = require("../../utils/validation/users/usersRegistration");
+const validateUsersLoginInput = require("../../utils/validation/users/usersLogin");
 
 class UsersController {
   // * @route   GET http://localhost:5000/api/users/test
@@ -80,6 +81,76 @@ class UsersController {
       });
 
       const userDto = new UserDto(newUser);
+      const tokens = TokenService.generateTokens({ ...userDto });
+      await TokenService.saveToken(userDto.id, tokens.refreshToken);
+
+      res.cookie(`refreshToken`, tokens.refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+      });
+
+      return res.status(200).json({
+        statusCode: 200,
+        stringStatus: "OK, Success",
+        message: {
+          ...tokens,
+          user: userDto,
+        },
+      });
+    } catch (err) {
+      res.status(500).json({
+        statusCode: 500,
+        stringStatus: "Bad Request",
+        message: `Something went wrong or you entered incorrect data ${err}. Please try again!`,
+      });
+      console.log({
+        statusCode: 500,
+        stringStatus: "Error",
+        message: `Something went wrong or you entered incorrect data ${err}. Please try again!`,
+      });
+    }
+  }
+
+  // * @route   GET http://localhost:5000/api/users/login
+  // * @desc    User login
+  // * @access  Public
+  async login(req, res) {
+    try {
+      // First section
+      const { errors, isValid } = validateUsersLoginInput(req.body);
+
+      // Validation
+      if (!isValid) {
+        return res.status(400).json({
+          statusCode: 400,
+          stringStatus: "Bad Request",
+          message: errors,
+        });
+      }
+
+      const { email, password } = req.body;
+
+      const user = await UserModel.findOne({ email });
+
+      if (!user) {
+        return res.status(404).json({
+          statusCode: 404,
+          stringStatus: "Not Found",
+          message: "Пользователя с таким email не существует!",
+        });
+      }
+
+      const verifyPassword = await bcrypt.compare(password, user.password);
+
+      if (!verifyPassword) {
+        return res.status(400).json({
+          statusCode: 400,
+          stringStatus: "Bad Request",
+          message: "Неправильный email или пароль!",
+        });
+      }
+
+      const userDto = new UserDto(user);
       const tokens = TokenService.generateTokens({ ...userDto });
       await TokenService.saveToken(userDto.id, tokens.refreshToken);
 

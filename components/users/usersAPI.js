@@ -13,4 +13,9 @@ router.get("/test", usersController.test);
 // * @access  Public
 router.post("/registration", usersController.registration);
 
+// * @route   GET http://localhost:5000/api/users/login
+// * @desc    User login
+// * @access  Public
+router.post("/login", usersController.login);
+
 module.exports = router;
