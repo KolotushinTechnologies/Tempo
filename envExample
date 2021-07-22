@@ -1,2 +1,4 @@
 PORT=5000
 DB_URL=
+JWT_ACCESS_SECRET=jwt-secret-access-token
+JWT_REFRESH_SECRET=jwt-secret-refresh-token
