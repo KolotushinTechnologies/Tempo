@@ -18,4 +18,20 @@ router.post("/registration", usersController.registration);
 // * @access  Public
 router.post("/login", usersController.login);
 
+// * @route   GET http://localhost:5000/api/users/auth/request-reset-password
+// * @desc    User request reset password
+// * @access  Public
+router.post(
+  "/auth/request-reset-password",
+  usersController.authenticationRequestResetPassword
+);
+
+// * @route   GET http://localhost:5000/api/users/auth/reset-password
+// * @desc    User reset password
+// * @access  Public
+router.post(
+  "/auth/reset-password",
+  usersController.authenticationResetPassword
+);
+
 module.exports = router;
