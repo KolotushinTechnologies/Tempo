@@ -326,6 +326,94 @@ class UsersController {
       });
     }
   }
+
+  // * @route   GET http://localhost:5000/api/users/me
+  // * @desc    Get user profile
+  // * @access  Private
+  async getMyProfile(req, res) {
+    try {
+      const user = await UserModel.findOne({ _id: req.user.id });
+
+      if (!user) {
+        return res.status(404).json({
+          statusCode: 404,
+          stringStatus: "Not Found",
+          message: "Пользователь не найден!",
+        });
+      }
+
+      return res.status(200).json({
+        statusCode: 200,
+        stringStatus: "OK, Success",
+        message: user,
+      });
+    } catch (err) {
+      res.status(500).json({
+        statusCode: 500,
+        stringStatus: "Bad Request",
+        message: `Something went wrong or you entered incorrect data ${err}. Please try again!`,
+      });
+      console.log({
+        statusCode: 500,
+        stringStatus: "Error",
+        message: `Something went wrong or you entered incorrect data ${err}. Please try again!`,
+      });
+    }
+  }
+
+  // * @route   PUT http://localhost:5000/api/users/me/settings
+  // * @desc    Settings user profile
+  // * @access  Private
+  async myProfileSettings(req, res) {
+    try {
+      const user = await UserModel.findOne({ _id: req.user.id });
+
+      if (!user) {
+        return res.status(404).json({
+          statusCode: 404,
+          stringStatus: "Not Found",
+          message: "Пользователь не найден!",
+        });
+      }
+
+      const { email, username } = req.body;
+
+      // TODO: Сделать валидацию для ввода символов в email и другие поля,
+      // сделать валидацию на пустые строки и пробелы в форме
+      if (email) {
+        user.email = email;
+      }
+
+      // TODO: Сделать валидацию для ввода символов в email и другие поля,
+      // сделать валидацию на пустые строки и пробелы в форме
+      if (username) {
+        user.username = username;
+      }
+
+      user.save();
+
+      return res.status(200).json({
+        statusCode: 200,
+        stringStatus: "OK, Success",
+        message: {
+          _id: user._id,
+          email: user.email,
+          username: user.username,
+        },
+      });
+    } catch (err) {
+      res.status(500).json({
+        statusCode: 500,
+        stringStatus: "Bad Request",
+        message: `Something went wrong or you entered incorrect data ${err}. Please try again!`,
+      });
+      console.log({
+        statusCode: 500,
+        stringStatus: "Error",
+        message: `Something went wrong or you entered incorrect data ${err}. Please try again!`,
+      });
+    }
+  }
 }
 
 module.exports = new UsersController();

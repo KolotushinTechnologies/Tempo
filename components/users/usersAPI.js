@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
+// Importing Controllers
 const usersController = require("./usersController");
+
+// Connecting Middlewares
+const authMiddleware = require("../../middlewares/authMiddleware");
 
 // * @route   GET http://localhost:5000/api/users/test
 // * @desc    User route testing
@@ -33,5 +37,15 @@ router.post(
   "/auth/reset-password",
   usersController.authenticationResetPassword
 );
+
+// * @route   GET http://localhost:5000/api/users/me
+// * @desc    Get user profile
+// * @access  Private
+router.get("/me", authMiddleware, usersController.getMyProfile);
+
+// * @route   PUT http://localhost:5000/api/users/me/settings
+// * @desc    Settings user profile
+// * @access  Private
+router.put("/me/settings", authMiddleware, usersController.myProfileSettings);
 
 module.exports = router;
