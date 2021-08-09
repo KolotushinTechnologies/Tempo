@@ -13,6 +13,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
 
+app.use(express.static("public"));
+
 app.use("/api/users", usersRoute);
 
 module.exports = app;

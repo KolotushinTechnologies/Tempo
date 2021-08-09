@@ -5,6 +5,7 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true, sparse: true },
     password: { type: String, required: true },
     username: { type: String, unique: true, sparse: true },
+    avatar: { type: Schema.Types.ObjectId, ref: "Avatar" },
     emailVerifyCode: { type: String },
     roles: [{ type: String, ref: "Role" }],
   },

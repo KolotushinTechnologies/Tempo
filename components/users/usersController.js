@@ -1,10 +1,14 @@
 const bcrypt = require("bcrypt");
+const fs = require("fs");
 
 // Initialize User Model
 const UserModel = require("./user");
 
 // Initialize Role Model
 const RoleModel = require("../roles/role");
+
+// Initialize Avatar Model
+const AvatarModel = require("../files/Avatars/avatar");
 
 // Initialize Generate Code Email (Utils)
 const generationEmailCode = require("../../utils/generation/generationEmailCode/generationEmailCode");
@@ -17,6 +21,9 @@ const MailService = require("../Mail/MailService");
 
 // Initialize User Dto
 const UserDto = require("../../dtos/UserDto");
+
+// Initialize Avatar Dto
+const AvatarDto = require("../../dtos/AvatarDto");
 
 // Connecting validation for forms
 const validateUsersRegistrationInput = require("../../utils/validation/users/usersRegistration");
@@ -399,6 +406,127 @@ class UsersController {
           _id: user._id,
           email: user.email,
           username: user.username,
+        },
+      });
+    } catch (err) {
+      res.status(500).json({
+        statusCode: 500,
+        stringStatus: "Bad Request",
+        message: `Something went wrong or you entered incorrect data ${err}. Please try again!`,
+      });
+      console.log({
+        statusCode: 500,
+        stringStatus: "Error",
+        message: `Something went wrong or you entered incorrect data ${err}. Please try again!`,
+      });
+    }
+  }
+
+  // * @route   POST http://localhost:5000/api/users/me/settings/upload-avatar
+  // * @desc    Settings user profile upload avatar
+  // * @access  Private
+  async myProfileSettingsUploadAvatar(req, res) {
+    try {
+      const userId = req.user.id;
+
+      const avatar = await AvatarModel.findOne({ user: userId });
+
+      if (!avatar) {
+        const { file } = req;
+
+        if (!file) {
+          return res.status(400).json({
+            statusCode: 400,
+            stringStatus: "Bad Request",
+            message: "Поле с файлом не найдено!",
+          });
+        }
+
+        const ext = file.originalname.split(".").pop();
+
+        const newAvatar = await AvatarModel.create({
+          filename: file.path.split("\\").pop(),
+          ext: ext,
+          utl: `${req.protocol}://${
+            req.headers.host
+          }/file/images/avatars/${file.path.split("\\").pop()}`,
+          user: userId,
+        });
+
+        const avatarDto = new AvatarDto(newAvatar);
+
+        await UserModel.updateOne(
+          { _id: userId },
+          {
+            $set: {
+              avatar: avatarDto.id,
+            },
+          }
+        );
+
+        return res.status(200).json({
+          statusCode: 200,
+          stringStatus: "OK, Success",
+          message: {
+            user: avatarDto.user,
+            avatar: avatarDto,
+          },
+        });
+      }
+
+      fs.unlink(
+        `./public/files/images/avatars/${avatar.filename}`,
+        function (err) {
+          if (err) {
+            console.log(err);
+            return res.status(400).json({
+              statusCode: 400,
+              stringStatus: "Bad Request",
+              message: `Something went wrong! ${err}`,
+            });
+          }
+        }
+      );
+      await AvatarModel.deleteOne({ user: userId });
+
+      const { file } = req;
+
+      if (!file) {
+        return res.status(400).json({
+          statusCode: 400,
+          stringStatus: "Bad Request",
+          message: "Поле с файлом не найдено!",
+        });
+      }
+
+      const ext = file.originalname.split(".").pop();
+
+      const newAvatar = await AvatarModel.create({
+        filename: file.path.split("\\").pop(),
+        ext: ext,
+        url: `${req.protocol}://${
+          req.headers.host
+        }/files/images/avatars/${file.path.split("\\").pop()}`,
+        user: userId,
+      });
+
+      const avatarDto = new AvatarDto(newAvatar);
+
+      await UserModel.updateOne(
+        { _id: userId },
+        {
+          $set: {
+            avatar: avatarDto.id,
+          },
+        }
+      );
+
+      return res.status(200).json({
+        statusCode: 200,
+        stringStatus: "OK, Success",
+        message: {
+          user: avatarDto.user,
+          avatar: avatarDto,
         },
       });
     } catch (err) {

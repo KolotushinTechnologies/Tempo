@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+// Connecting to multer
+const multer = require("../../utils/multer/multer");
+
 // Importing Controllers
 const usersController = require("./usersController");
 
@@ -47,5 +50,15 @@ router.get("/me", authMiddleware, usersController.getMyProfile);
 // * @desc    Settings user profile
 // * @access  Private
 router.put("/me/settings", authMiddleware, usersController.myProfileSettings);
+
+// * @route   PUT http://localhost:5000/api/users/me/settings/upload-avatar
+// * @desc    Settings user profile upload avatar
+// * @access  Private
+router.post(
+  "/me/settings/upload-avatar",
+  multer.single("file"),
+  authMiddleware,
+  usersController.myProfileSettingsUploadAvatar
+);
 
 module.exports = router;
